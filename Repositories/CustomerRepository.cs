@@ -6,9 +6,9 @@ namespace CustomerApi.Repositories;
 
 public class CustomerRepository(OracleConnection connection) : ICustomerRepository
 {
-    public async Task<List<Customer>> GetAllAsync()
+    public async Task<IEnumerable<CustomerEntity>> GetAllAsync()
     {
-        var customers = new List<Customer>();
+        var customers = new List<CustomerEntity>();
 
         using var cmd = new OracleCommand("GetAllCustomers", connection)
         {
@@ -22,7 +22,7 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
 
         while (await reader.ReadAsync())
         {
-            customers.Add(new Customer
+            customers.Add(new CustomerEntity
             {
                 Id = Convert.ToInt32(reader["Id"]),
                 FirstName = reader["FirstName"].ToString(),
@@ -35,9 +35,9 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         return customers;
     }
 
-    public async Task<Customer?> GetByIdAsync(int id)
+    public async Task<CustomerEntity?> GetByIdAsync(int id)
     {
-        Customer? customer = null;
+        CustomerEntity? customer = null;
 
         using var cmd = new OracleCommand("GetCustomerById", connection)
         {
@@ -52,7 +52,7 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
 
         if (await reader.ReadAsync())
         {
-            customer = new Customer
+            customer = new CustomerEntity
             {
                 Id = Convert.ToInt32(reader["Id"]),
                 FirstName = reader["FirstName"].ToString(),
@@ -66,7 +66,7 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
     }
 
 
-    public async Task AddAsync(Customer customer)
+    public async Task AddAsync(CustomerEntity customer)
     {
         using var cmd = new OracleCommand("InsertCustomer", connection)
         {
@@ -82,7 +82,7 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         await connection.CloseAsync();
     }
 
-    public async Task UpdateAsync(Customer customer)
+    public async Task UpdateAsync(CustomerEntity customer)
     {
         using var cmd = new OracleCommand("UpdateCustomer", connection)
         {

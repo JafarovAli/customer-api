@@ -2,7 +2,7 @@
 
 namespace CustomerApi.Entites;
 
-public class Customer
+public class CustomerEntity
 {
     public int Id { get; set; }
 

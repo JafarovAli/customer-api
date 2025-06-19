@@ -39,9 +39,6 @@ public class CustomerController(ICustomerService customerService) : ControllerBa
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateCustomerDto updateCustomerDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         await customerService.UpdateCustomerAsync(id, updateCustomerDto);
         return Ok();
     }

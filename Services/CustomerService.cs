@@ -21,16 +21,28 @@ public class CustomerService(ICustomerRepository customerRepository, IMapper map
 
     public async Task CreateCustomerAsync(CreateCustomerDto createCustomerDto)
     {
-        var customer = mapper.Map<Customer>(createCustomerDto);
+        var customer = mapper.Map<CustomerEntity>(createCustomerDto);
         await customerRepository.AddAsync(customer);
     }
 
-    public async Task UpdateCustomerAsync(int id, UpdateCustomerDto updateCustomerDto)
+    public async Task UpdateCustomerAsync(int id, UpdateCustomerDto dto)
     {
-        var customer = mapper.Map<Customer>(updateCustomerDto);
-        customer.Id = id;
-        await customerRepository.UpdateAsync(customer);
+        var existing = await customerRepository.GetByIdAsync(id);
+        if (existing == null)
+            throw new KeyNotFoundException($"Customer with ID {id} not found.");
+
+        if (!string.IsNullOrWhiteSpace(dto.FirstName))
+            existing.FirstName = dto.FirstName;
+
+        if (!string.IsNullOrWhiteSpace(dto.LastName))
+            existing.LastName = dto.LastName;
+
+        if (!string.IsNullOrWhiteSpace(dto.Email))
+            existing.Email = dto.Email;
+
+        await customerRepository.UpdateAsync(existing);
     }
+
 
     public async Task DeleteCustomerAsync(int id)
     {
