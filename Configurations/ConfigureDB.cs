@@ -1,5 +1,5 @@
-﻿using CustomerApi.Persistence;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Oracle.ManagedDataAccess.Client;
 
 namespace CustomerApi.Configurations;
 
@@ -7,7 +7,7 @@ public static class ConfigureDb
 {
     public static void AddConfigureDbServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options =>
-        options.UseOracle(configuration.GetConnectionString("OracleConnection")));
+        services.AddScoped<OracleConnection>(_ =>
+        new OracleConnection(configuration.GetConnectionString("OracleConnection")));
     }
 }

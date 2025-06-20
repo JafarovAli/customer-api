@@ -1,6 +1,8 @@
 ﻿using CustomerApi.Repositories;
 using CustomerApi.Services;
-using Oracle.ManagedDataAccess.Client;
+using CustomerApi.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 namespace CustomerApi.Configurations;
 
@@ -8,8 +10,9 @@ public static class ConfigureServices
 {
     public static void AddConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<OracleConnection>(_ =>
-        new OracleConnection(configuration.GetConnectionString("OracleConnection")));
+        services.AddFluentValidationAutoValidation();
+        services.AddValidatorsFromAssemblyContaining<CreateCustomerDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<UpdateCustomerDtoValidator>();
 
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();

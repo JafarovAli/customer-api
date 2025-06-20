@@ -6,9 +6,9 @@ namespace CustomerApi.Repositories;
 
 public class CustomerRepository(OracleConnection connection) : ICustomerRepository
 {
-    public async Task<IEnumerable<CustomerEntity>> GetAllAsync()
+    public async Task<IEnumerable<Customer>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var customers = new List<CustomerEntity>();
+        var customers = new List<Customer>();
 
         using var cmd = new OracleCommand("GetAllCustomers", connection)
         {
@@ -18,11 +18,11 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
 
         await connection.OpenAsync();
-        using var reader = await cmd.ExecuteReaderAsync();
+        using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
         while (await reader.ReadAsync())
         {
-            customers.Add(new CustomerEntity
+            customers.Add(new Customer
             {
                 Id = Convert.ToInt32(reader["Id"]),
                 FirstName = reader["FirstName"].ToString(),
@@ -35,9 +35,9 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         return customers;
     }
 
-    public async Task<CustomerEntity?> GetByIdAsync(int id)
+    public async Task<Customer?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        CustomerEntity? customer = null;
+        Customer? customer = null;
 
         using var cmd = new OracleCommand("GetCustomerById", connection)
         {
@@ -48,11 +48,11 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         cmd.Parameters.Add("p_cursor", OracleDbType.RefCursor, ParameterDirection.Output);
 
         await connection.OpenAsync();
-        using var reader = await cmd.ExecuteReaderAsync();
+        using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
         if (await reader.ReadAsync())
         {
-            customer = new CustomerEntity
+            customer = new Customer
             {
                 Id = Convert.ToInt32(reader["Id"]),
                 FirstName = reader["FirstName"].ToString(),
@@ -66,7 +66,7 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
     }
 
 
-    public async Task AddAsync(CustomerEntity customer)
+    public async Task AddAsync(Customer customer, CancellationToken cancellationToken)
     {
         using var cmd = new OracleCommand("InsertCustomer", connection)
         {
@@ -78,11 +78,11 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         cmd.Parameters.Add("p_Email", customer.Email);
 
         await connection.OpenAsync();
-        await cmd.ExecuteNonQueryAsync();
+        await cmd.ExecuteNonQueryAsync(cancellationToken);
         await connection.CloseAsync();
     }
 
-    public async Task UpdateAsync(CustomerEntity customer)
+    public async Task UpdateAsync(Customer customer, CancellationToken cancellationToken)
     {
         using var cmd = new OracleCommand("UpdateCustomer", connection)
         {
@@ -95,11 +95,11 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         cmd.Parameters.Add("p_Email", customer.Email);
 
         await connection.OpenAsync();
-        await cmd.ExecuteNonQueryAsync();
+        await cmd.ExecuteNonQueryAsync(cancellationToken);
         await connection.CloseAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken)
     {
         using var cmd = new OracleCommand("DeleteCustomer", connection)
         {
@@ -109,7 +109,7 @@ public class CustomerRepository(OracleConnection connection) : ICustomerReposito
         cmd.Parameters.Add("p_Id", id);
 
         await connection.OpenAsync();
-        await cmd.ExecuteNonQueryAsync();
+        await cmd.ExecuteNonQueryAsync(cancellationToken);
         await connection.CloseAsync();
     }
 }
